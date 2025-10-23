@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://6oh51rcnamjs"]
+
+[ext_resource type="Script" uid="uid://cwy4vcq2jk0sj" path="res://reef_cleanup_main.gd" id="1_0atsu"]
+
+[sub_resource type="Environment" id="Environment_0atsu"]
+background_mode = 1
+background_color = Color(0, 0.22745098, 0.34901962, 1)
+tonemap_mode = 3
+tonemap_exposure = 1.2
+glow_enabled = true
+glow_intensity = 0.2
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.05490196, 0.43137255, 0.65882355, 1)
+fog_sun_scatter = 0.02
+fog_density = 0.025
+fog_height_density = 0.02
+fog_depth_begin = 5.0
+fog_depth_end = 50.0
+volumetric_fog_enabled = true
+
+[node name="ReefCleanup_main" type="Node3D"]
+script = ExtResource("1_0atsu")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+
+[node name="XRHandModifier3D" type="XRHandModifier3D" parent="XROrigin3D"]
+
+[node name="XRHandModifier3D2" type="XRHandModifier3D" parent="XROrigin3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0atsu")
