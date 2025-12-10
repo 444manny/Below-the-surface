@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://b77d384mf8au1"]
+
+[ext_resource type="Script" uid="uid://c7xdpf4iqrmct" path="res://Scripts/trash_item.gd" id="1_pglwa"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_osw3g"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_srqsw"]
+material = SubResource("StandardMaterial3D_osw3g")
+
+[node name="Trash item" type="RigidBody3D"]
+script = ExtResource("1_pglwa")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+mesh = SubResource("CylinderMesh_srqsw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]

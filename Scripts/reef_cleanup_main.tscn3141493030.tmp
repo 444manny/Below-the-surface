@@ -1,0 +1,372 @@
+[gd_scene load_steps=23 format=3 uid="uid://6oh51rcnamjs"]
+
+[ext_resource type="Script" uid="uid://cwy4vcq2jk0sj" path="res://reef_cleanup_main.gd" id="1_0atsu"]
+[ext_resource type="PackedScene" uid="uid://b6su4egff1bcg" path="res://OceanEnvironment.tscn" id="2_jw4fh"]
+[ext_resource type="Script" uid="uid://bcxwspyrlvha2" path="res://Scripts/Score_manager.gd" id="3_1bicq"]
+[ext_resource type="Script" uid="uid://q0fdris065ap" path="res://Scripts/pollution_manager.gd" id="3_7vkrx"]
+[ext_resource type="PackedScene" uid="uid://b77d384mf8au1" path="res://trash_item.tscn" id="5_b6feo"]
+[ext_resource type="Texture2D" uid="uid://dyhu3w43i0hjl" path="res://textures/kenney-dark-grey-checkerboard-cc0.png" id="6_b6feo"]
+[ext_resource type="Shader" uid="uid://d20wefmautjia" path="res://Scripts/reef_cleanup_main.gdshader" id="6_c2rmw"]
+
+[sub_resource type="Environment" id="Environment_0atsu"]
+background_mode = 1
+background_color = Color(0, 0.22745098, 0.34901962, 1)
+tonemap_mode = 3
+tonemap_exposure = 1.2
+glow_enabled = true
+glow_intensity = 0.2
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.05490196, 0.43137255, 0.65882355, 1)
+fog_sun_scatter = 0.02
+fog_density = 0.025
+fog_height_density = 0.02
+fog_depth_begin = 5.0
+fog_depth_end = 50.0
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0atsu"]
+albedo_color = Color(0, 0.29803923, 0.24705882, 1)
+metallic = 0.1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_116wy"]
+material = SubResource("StandardMaterial3D_0atsu")
+size = Vector2(20, 20)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_116wy"]
+data = PackedVector3Array(10, 0, 10, -10, 0, 10, 10, 0, -10, -10, 0, 10, -10, 0, -10, 10, 0, -10)
+
+[sub_resource type="GDScript" id="GDScript_0atsu"]
+script/source = "extends CharacterBody3D
+
+
+const SPEED = 5.0
+const JUMP_VELOCITY = 4.5
+
+@onready var neck := $Neck
+@onready var camera := $Neck/Camera3D
+
+func _unhandled_input(event): 
+	if event is InputEventMouseButton:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	elif event.is_action_pressed(\"ui_cancel\"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+			if event is InputEventMouseMotion:
+				neck.rotate_y(-event.relative.x * 0.01)
+				camera.rotate_x(-event.relative.y * 0.01)
+				camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-30), deg_to_rad(60))
+				
+	
+		
+	
+
+func _physics_process(delta: float) -> void:
+	# Add the gravity.
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+
+	# Handle jump.
+	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	# Get the input direction and handle the movement/deceleration.
+	# As good practice, you should replace UI actions with custom gameplay actions.
+	var input_dir := Input.get_vector(\"ui_left\", \"ui_right\", \"ui_up\", \"ui_down\")
+	var direction = (neck.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	if direction:
+		velocity.x = direction.x * SPEED
+		velocity.z = direction.z * SPEED
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+		velocity.z = move_toward(velocity.z, 0, SPEED)
+
+	move_and_slide()
+"
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_0atsu"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_116wy"]
+points = PackedVector3Array(-0.12520654, -0.532801, -0.4805069, 0.022783129, 0.4760704, 0.49888408, 0.16971254, 0.5591441, 0.46417162, 0.23105091, -0.8035912, 0.32045516, 0.40741014, 0.651043, -0.24352328, -0.4827893, 0.59484255, 0.082213186, -0.3628679, -0.68231165, 0.2896967, 0.46904355, -0.65452886, -0.06627126, -0.12744367, 0.8427015, -0.33810276, -0.39343542, -0.6839421, -0.24471663, 0.43825462, 0.62330925, 0.20084947, 0.0841477, 0.977454, 0.11479468, -0.06820232, -0.9764576, -0.12927033, 0.20054972, -0.56312895, -0.4514544, -0.18552664, 0.59545326, -0.4534751, -0.27336287, 0.59226835, 0.40775412, -0.0069364863, -0.47682306, 0.49966025, 0.37582088, -0.5886136, 0.31695515, 0.111579016, 0.5630594, -0.48117727, -0.41725034, 0.5278656, -0.27049688, -0.48454633, -0.59697217, -0.06650971, -0.27974695, 0.90856135, 0.05333608, -0.25019687, -0.8807117, 0.20531891, 0.263647, -0.90277094, -0.1273943, 0.29336792, 0.8715263, -0.15719566, 0.3734115, -0.5263189, -0.32824618, 0.4996626, 0.47664148, -0.0068885577, 0.053105574, 0.8750009, 0.32470253, -0.15454252, -0.5908538, 0.4658794, -0.09727988, -0.7823577, -0.39818847, -0.3876489, -0.49817133, 0.31564978, -0.30067965, -0.58799505, -0.38890144)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r0ufk"]
+shader = ExtResource("6_c2rmw")
+
+[sub_resource type="GDScript" id="GDScript_c2rmw"]
+script/source = "@tool
+extends CSGBox3D
+
+@export var water_texture_move_speed := Vector3(0.0025, 0.0025, 0.0025)
+@export var water_texture_uv_scale := 0.04
+@export var water_color := Color(0.3098039329052, 0.54117649793625, 0.86666667461395, 0.38823530077934)
+@export var fog_color := Color(0, 0.04313725605607, 0.15686275064945)
+@export_range(0.0, 250.0) var fog_fade_dist := 5.0
+
+static var last_frame_drew_underwater_effect : int = -999
+
+func _ready():
+	self.process_priority = 999 # Call _process last to update move after any camera movement
+
+# Track the current camera with an area so we can check if it is inside the water
+func should_draw_camera_underwater_effect():
+	var camera := get_viewport().get_camera_3d() if get_viewport() else null
+	if not camera: return false
+	var aabb = self.global_transform * self.get_aabb().grow(0.025)
+	if not aabb.has_point(camera.global_position): return false
+	# Don't draw multiple overlays at once, incase 2 water bodies overlap
+	if last_frame_drew_underwater_effect == Engine.get_process_frames(): return false
+	
+	%CameraPosShapeCast3D.global_position = camera.global_position
+	%CameraPosShapeCast3D.force_shapecast_update()
+	for i in %CameraPosShapeCast3D.get_collision_count():
+		if %CameraPosShapeCast3D.get_collider(i) == %SwimmableArea3D:
+			return true
+	return false
+
+func _update_mesh():
+	if get_node_or_null(\"%CollisionShape3D\"):
+		%CollisionShape3D.shape.size = self.size
+
+func _process(delta):
+	_update_mesh()
+	if self.material is StandardMaterial3D:
+		if not Engine.is_editor_hint():
+			self.material.uv1_offset += water_texture_move_speed * delta
+		self.material.uv1_scale = Vector3(water_texture_uv_scale,water_texture_uv_scale,water_texture_uv_scale)
+		self.material.albedo_color = water_color
+	%FogVolume.material.set_shader_parameter(\"albedo\", fog_color)
+	%FogVolume.material.set_shader_parameter(\"emission\", fog_color)
+	%FogVolume.size = self.size
+	%FogVolume.fade_distance = self.fog_fade_dist
+	if not Engine.is_editor_hint():
+		if should_draw_camera_underwater_effect():
+			%WaterRippleOverlay.visible = true
+			%FogVolume.material.set_shader_parameter(\"edge_fade\", 0.1)
+			last_frame_drew_underwater_effect = Engine.get_process_frames()
+		else:
+			%WaterRippleOverlay.visible = false
+			%FogVolume.material.set_shader_parameter(\"edge_fade\", 1.1)
+"
+
+[sub_resource type="Shader" id="Shader_1bicq"]
+code = "// NOTE: Shader automatically converted from Godot Engine 4.5.stable's StandardMaterial3D.
+
+shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+uniform vec4 albedo : source_color;
+uniform sampler2D texture_albedo : source_color, filter_linear_mipmap, repeat_enable;
+uniform ivec2 albedo_texture_size;
+uniform float point_size : hint_range(0.1, 128.0, 0.1);
+
+uniform float roughness : hint_range(0.0, 1.0);
+uniform sampler2D texture_metallic : hint_default_white, filter_linear_mipmap, repeat_enable;
+uniform vec4 metallic_texture_channel;
+uniform sampler2D texture_roughness : hint_roughness_r, filter_linear_mipmap, repeat_enable;
+
+uniform float specular : hint_range(0.0, 1.0, 0.01);
+uniform float metallic : hint_range(0.0, 1.0, 0.01);
+
+uniform sampler2D texture_refraction : filter_linear_mipmap, repeat_enable;
+uniform float refraction : hint_range(-1.0, 1.0, 0.001);
+uniform vec4 refraction_texture_channel;
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
+
+uniform sampler2D texture_normal : hint_roughness_normal, filter_linear_mipmap, repeat_enable;
+uniform float normal_scale : hint_range(-16.0, 16.0);
+varying vec3 uv1_triplanar_pos;
+
+uniform float uv1_blend_sharpness : hint_range(0.0, 150.0, 0.001);
+varying vec3 uv1_power_normal;
+
+uniform vec3 uv1_scale;
+uniform vec3 uv1_offset;
+uniform vec3 uv2_scale;
+uniform vec3 uv2_offset;
+
+void vertex() {
+	vec3 normal = MODEL_NORMAL_MATRIX * NORMAL;
+
+	TANGENT = vec3(0.0, 0.0, -1.0) * abs(normal.x);
+	TANGENT += vec3(1.0, 0.0, 0.0) * abs(normal.y);
+	TANGENT += vec3(1.0, 0.0, 0.0) * abs(normal.z);
+	TANGENT = inverse(MODEL_NORMAL_MATRIX) * normalize(TANGENT);
+
+	BINORMAL = vec3(0.0, 1.0, 0.0) * abs(normal.x);
+	BINORMAL += vec3(0.0, 0.0, -1.0) * abs(normal.y);
+	BINORMAL += vec3(0.0, 1.0, 0.0) * abs(normal.z);
+	BINORMAL = inverse(MODEL_NORMAL_MATRIX) * normalize(BINORMAL);
+
+	// UV1 Triplanar: Enabled (with World Triplanar)
+	uv1_power_normal = pow(abs(normal), vec3(uv1_blend_sharpness));
+	uv1_triplanar_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz * uv1_scale + uv1_offset + TIME;
+	uv1_power_normal /= dot(uv1_power_normal, vec3(1.0));
+	uv1_triplanar_pos *= vec3(1.0, -1.0, 1.0);
+}
+
+vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_triplanar_pos) {
+	vec4 samp = vec4(0.0);
+	samp += texture(p_sampler, p_triplanar_pos.xy) * p_weights.z;
+	samp += texture(p_sampler, p_triplanar_pos.xz) * p_weights.y;
+	samp += texture(p_sampler, p_triplanar_pos.zy * vec2(-1.0, 1.0)) * p_weights.x;
+	return samp;
+}
+
+void fragment() {
+	vec4 albedo_tex = triplanar_texture(texture_albedo, uv1_power_normal, uv1_triplanar_pos);
+	ALBEDO = albedo.rgb * albedo_tex.rgb;
+
+	float metallic_tex = dot(triplanar_texture(texture_metallic, uv1_power_normal, uv1_triplanar_pos), metallic_texture_channel);
+	METALLIC = metallic_tex * metallic;
+	SPECULAR = specular;
+
+	vec4 roughness_texture_channel = vec4(1.0, 0.0, 0.0, 0.0);
+	float roughness_tex = dot(triplanar_texture(texture_roughness, uv1_power_normal, uv1_triplanar_pos), roughness_texture_channel);
+	ROUGHNESS = roughness_tex * roughness;
+
+	// Normal Map: Enabled
+	NORMAL_MAP = triplanar_texture(texture_normal, uv1_power_normal, uv1_triplanar_pos).rgb;
+	NORMAL_MAP_DEPTH = normal_scale;
+
+	// Refraction: Enabled (with normal map texture)
+	vec3 unpacked_normal = NORMAL_MAP;
+	unpacked_normal.xy = unpacked_normal.xy * 2.0 - 1.0;
+	unpacked_normal.z = sqrt(max(0.0, 1.0 - dot(unpacked_normal.xy, unpacked_normal.xy)));
+	vec3 ref_normal = normalize(mix(
+			NORMAL,
+			TANGENT * unpacked_normal.x + BINORMAL * unpacked_normal.y + NORMAL * unpacked_normal.z,
+			NORMAL_MAP_DEPTH));
+	vec2 ref_ofs = SCREEN_UV - ref_normal.xy * dot(triplanar_texture(texture_refraction, uv1_power_normal, uv1_triplanar_pos), refraction_texture_channel) * refraction;
+
+	float ref_amount = 1.0 - albedo.a * albedo_tex.a;
+
+	float refraction_depth_tex = textureLod(depth_texture, ref_ofs, 0.0).r;
+	vec4 refraction_view_pos = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, refraction_depth_tex, 1.0);
+	refraction_view_pos.xyz /= refraction_view_pos.w;
+
+	// If the depth buffer is lower then the model's Z position, use the refracted UV, otherwise use the normal screen UV.
+	// At low depth differences, decrease refraction intensity to avoid sudden discontinuities.
+	EMISSION += textureLod(screen_texture, mix(SCREEN_UV, ref_ofs, smoothstep(0.0, 1.0, VERTEX.z - refraction_view_pos.z)), ROUGHNESS * 8.0).rgb * ref_amount * EXPOSURE;
+	ALBEDO *= 1.0 - ref_amount;
+	// Force transparency on the material (required for refraction).
+	ALPHA = 1.0;
+}
+"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_b6feo"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_c2rmw"]
+noise = SubResource("FastNoiseLite_b6feo")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fxoen"]
+render_priority = 0
+shader = SubResource("Shader_1bicq")
+shader_parameter/albedo = Color(0.38039216, 0.6745098, 1, 0.5803922)
+shader_parameter/albedo_texture_size = Vector2i(0, 0)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 0.0
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/texture_refraction = SubResource("NoiseTexture2D_c2rmw")
+shader_parameter/refraction = 0.05
+shader_parameter/refraction_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_c2rmw")
+shader_parameter/normal_scale = 1.0
+shader_parameter/uv1_blend_sharpness = 1.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2yaq2"]
+material = SubResource("ShaderMaterial_fxoen")
+size = Vector3(20, 1, 20)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2yaq2"]
+
+[node name="ReefCleanup_main" type="Node3D"]
+script = ExtResource("1_0atsu")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0atsu")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660254, -0.43301272, 0.24999999, 0, 0.49999997, 0.86602545, -0.5, -0.75, 0.43301266, 0, 0, 0)
+light_color = Color(0.5294118, 0.78431374, 1, 1)
+light_energy = 0.6
+light_volumetric_fog_energy = 0.8
+
+[node name="CPUParticles3D" type="CPUParticles3D" parent="."]
+lifetime = 5.0
+emission_shape = 3
+emission_box_extents = Vector3(5, 3, 5)
+gravity = Vector3(0, -0.1, 0)
+scale_amount_min = 200.0
+scale_amount_max = 200.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_116wy")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_116wy")
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7737355, 0)
+script = SubResource("GDScript_0atsu")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
+mesh = SubResource("CapsuleMesh_0atsu")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("ConvexPolygonShape3D_116wy")
+
+[node name="Neck" type="Node3D" parent="CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.50165606, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CharacterBody3D/Neck"]
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+
+[node name="XRController3D" type="XRController3D" parent="XROrigin3D"]
+
+[node name="XRController3D2" type="XRController3D" parent="XROrigin3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+
+[node name="OceanEnvironment" parent="." instance=ExtResource("2_jw4fh")]
+
+[node name="ScoreManager" type="Node" parent="."]
+script = ExtResource("3_1bicq")
+
+[node name="PollutionManager" type="Node3D" parent="."]
+script = ExtResource("3_7vkrx")
+trash_scene = ExtResource("5_b6feo")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.349347, 0)
+material = SubResource("ShaderMaterial_r0ufk")
+script = SubResource("GDScript_c2rmw")
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.120121, 4.847701, 0.04234022)
+mesh = SubResource("BoxMesh_2yaq2")
+
+[node name="TextureRect" type="TextureRect" parent="Water"]
+z_index = -10
+material = SubResource("ShaderMaterial_2yaq2")
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("6_b6feo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Water"]

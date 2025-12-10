@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://ielodw2o3xcr"]
+
+[ext_resource type="Script" uid="uid://d1tdnrpl0viqi" path="res://Scripts/hud_2d.gd" id="1_2dp7o"]
+
+[sub_resource type="Theme" id="Theme_65ul7"]
+
+[node name="HUD2D" type="CanvasLayer"]
+script = ExtResource("1_2dp7o")
+
+[node name="ScoreLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Score: 0"
+
+[node name="WinLabel" type="Label" parent="."]
+offset_left = 203.0
+offset_top = 167.0
+offset_right = 317.0
+offset_bottom = 190.0
+text = "Reef restored !"
+
+[node name="Goal label" type="Label" parent="."]
+offset_left = 371.0
+offset_top = 3.0
+offset_right = 540.0
+offset_bottom = 52.0
+theme = SubResource("Theme_65ul7")
+theme_override_colors/font_color = Color(0.14117648, 0.5176471, 1, 1)
+text = "SDG-14 Clean the reef
+"

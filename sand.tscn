@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://cuq7spha0u86n"]
+
+[ext_resource type="Texture2D" uid="uid://6gmbod3nntpx" path="res://textures/playground_sand_diff_4k.jpg" id="1_ecw6b"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_45ttf"]
+albedo_texture = ExtResource("1_ecw6b")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_6adq2"]
+material = SubResource("StandardMaterial3D_45ttf")
+size = Vector2(20, 20)
+
+[node name="MeshInstance3D" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_6adq2")

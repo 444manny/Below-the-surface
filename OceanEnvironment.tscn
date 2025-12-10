@@ -1,52 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://b6su4egff1bcg"]
-
-[sub_resource type="GDScript" id="GDScript_ktyrx"]
-script/source = "[gd_scene load_steps=6 format=3]
-
-[node name=\"OceanEnvironment\" type=\"Node3D\"]
-
-[node name=\"WorldEnvironment\" type=\"WorldEnvironment\" parent=\".\"]
-environment = SubResource(\"EnvironmentResource\")
-
-[sub_resource type=\"Environment\" id=\"EnvironmentResource\"]
-background_mode = 1
-background_color = Color(0.0, 0.105882, 0.2, 1.0) # Deep blue
-fog_enabled = true
-fog_light_color = Color(0.0, 0.48, 0.7, 1.0)
-fog_density = 0.015
-fog_depth_begin = 5.0
-fog_depth_end = 40.0
-
-[node name=\"DirectionalLight3D\" type=\"DirectionalLight3D\" parent=\".\"]
-light_energy = 0.4
-shadow_enabled = false
-transform = Transform3D(Basis(0.866, -0.5, 0, 0.5, 0.866, 0, 0, 0, 1), Vector3(0, 10, 0))
-
-[node name=\"Seafloor\" type=\"MeshInstance3D\" parent=\".\"]
-mesh = SubResource(\"PlaneMeshResource\")
-material_override = SubResource(\"SeafloorMaterial\")
-transform = Transform3D(Basis(), Vector3(0, -5, 0))
-
-[sub_resource type=\"PlaneMesh\" id=\"PlaneMeshResource\"]
-size = Vector2(200.0, 200.0)
-
-[sub_resource type=\"StandardMaterial3D\" id=\"SeafloorMaterial\"]
-albedo_color = Color(0.098, 0.25, 0.2, 1.0)
-roughness = 1.0
-
-[node name=\"Bubbles\" type=\"GPUParticles3D\" parent=\".\"]
-amount = 200
-process_material = SubResource(\"BubblesMaterial\")
-lifetime = 6.0
-transform = Transform3D(Basis(), Vector3(0, -2, 0))
-
-[sub_resource type=\"ParticleProcessMaterial\" id=\"BubblesMaterial\"]
-gravity = Vector3(0, -0.2, 0)
-initial_velocity_min = 0.2
-initial_velocity_max = 0.4
-scale_min = 0.03
-scale_max = 0.05
-"
+[gd_scene load_steps=5 format=3 uid="uid://b6su4egff1bcg"]
 
 [sub_resource type="Environment" id="Environment_fwo20"]
 fog_enabled = true
@@ -63,7 +15,6 @@ scale_min = 0.03
 scale_max = 0.049999997
 
 [node name="OceanEnvironment" type="Node3D"]
-script = SubResource("GDScript_ktyrx")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_fwo20")

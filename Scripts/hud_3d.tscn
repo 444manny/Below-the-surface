@@ -1,0 +1,44 @@
+[gd_scene load_steps=8 format=3 uid="uid://cfjo64cjx2gnd"]
+
+[ext_resource type="Script" uid="uid://j65e4fbksh6e" path="res://Scripts/hud_3d.gd" id="1_77mmr"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ofv6v"]
+albedo_color = Color(0.97082764, 0.5589656, 0.41297776, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_hxr6r"]
+material = SubResource("StandardMaterial3D_ofv6v")
+size = Vector3(1.5, 0.8, 0.1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cgg3o"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_qu46f"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2re55"]
+albedo_color = Color(0.9047937, 0.49179757, 0.63690037, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_7f0oe"]
+material = SubResource("StandardMaterial3D_2re55")
+
+[node name="HUD3D" type="Node3D"]
+script = ExtResource("1_77mmr")
+
+[node name="Board" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_hxr6r")
+
+[node name="RopeLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7651408, -0.11297059, 1.1403756)
+mesh = SubResource("CylinderMesh_cgg3o")
+
+[node name="RoperRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14120483, 0.90864813, -1.0611042)
+mesh = SubResource("CylinderMesh_qu46f")
+
+[node name="Coral" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_7f0oe")
+
+[node name="ScoreText" type="Label3D" parent="."]
+billboard = 1
+text = "Score: 0
+"
