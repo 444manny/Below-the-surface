@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://bwwmdc4xy617e"]
+
+[ext_resource type="PackedScene" uid="uid://by03ebx71cagt" path="res://uploads_files_4457188_Plastic_Bottles.glb" id="1_sv40m"]
+
+[node name="uploads_files_4457188_Plastic_Bottles" instance=ExtResource("1_sv40m")]
