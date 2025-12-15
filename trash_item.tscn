@@ -127,7 +127,7 @@ height = 0.56347656
 transform = Transform3D(1, 0, 0, 0, 3.04, 0, 0, 0, 0.824, 0, 0, 0)
 collision_layer = 4
 script = ExtResource("1_pglwa")
-water_level = 92.548
+lifespan = 20.0
 
 [node name="Plastic_Bottle_03_GEO" type="MeshInstance3D" parent="."]
 transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0.5904644, 0, 0)

@@ -76,4 +76,5 @@ func _spawn_wave():
 [node name="TrashSpawner" type="Node3D"]
 script = SubResource("GDScript_lpccn")
 trash_scene = ExtResource("1_o4tsm")
-spawn_interval = 30.0
+spawn_count = 5
+spawn_interval = 20.0

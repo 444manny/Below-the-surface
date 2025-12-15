@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://6oh51rcnamjs"]
+[gd_scene load_steps=26 format=3 uid="uid://6oh51rcnamjs"]
 
 [ext_resource type="Script" uid="uid://cwy4vcq2jk0sj" path="res://reef_cleanup_main.gd" id="1_0atsu"]
 [ext_resource type="PackedScene" uid="uid://b6su4egff1bcg" path="res://OceanEnvironment.tscn" id="2_jw4fh"]
@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://53p2ve2asr0v" path="res://trash_spawner.tscn" id="12_2dcvf"]
 
 [sub_resource type="Environment" id="Environment_0atsu"]
-background_mode = 1
+background_mode = 2
 background_color = Color(0, 0.22745098, 0.34901962, 1)
 tonemap_mode = 3
 tonemap_exposure = 1.2
@@ -156,138 +156,22 @@ points = PackedVector3Array(-0.12520654, -0.532801, -0.4805069, 0.022783129, 0.4
 [sub_resource type="SphereShape3D" id="SphereShape3D_lw67b"]
 
 [sub_resource type="Shader" id="Shader_1bicq"]
-code = "// NOTE: Shader automatically converted from Godot Engine 4.5.stable's StandardMaterial3D.
+code = "shader_type spatial;
 
-shader_type spatial;
-render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
-
-uniform vec4 albedo : source_color;
-uniform sampler2D texture_albedo : source_color, filter_linear_mipmap, repeat_enable;
-uniform ivec2 albedo_texture_size;
-uniform float point_size : hint_range(0.1, 128.0, 0.1);
-
-uniform float roughness : hint_range(0.0, 1.0);
-uniform sampler2D texture_metallic : hint_default_white, filter_linear_mipmap, repeat_enable;
-uniform vec4 metallic_texture_channel;
-uniform sampler2D texture_roughness : hint_roughness_r, filter_linear_mipmap, repeat_enable;
-
-uniform float specular : hint_range(0.0, 1.0, 0.01);
-uniform float metallic : hint_range(0.0, 1.0, 0.01);
-
-uniform sampler2D texture_refraction : filter_linear_mipmap, repeat_enable;
-uniform float refraction : hint_range(-1.0, 1.0, 0.001);
-uniform vec4 refraction_texture_channel;
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
-uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
-
-uniform sampler2D texture_normal : hint_roughness_normal, filter_linear_mipmap, repeat_enable;
-uniform float normal_scale : hint_range(-16.0, 16.0);
-varying vec3 uv1_triplanar_pos;
-
-uniform float uv1_blend_sharpness : hint_range(0.0, 150.0, 0.001);
-varying vec3 uv1_power_normal;
-
-uniform vec3 uv1_scale;
-uniform vec3 uv1_offset;
-uniform vec3 uv2_scale;
-uniform vec3 uv2_offset;
+uniform float sway_strength : hint_range(0.0, 1.0) = 0.25;
+uniform float sway_speed : hint_range(0.1, 5.0) = 1.8;
 
 void vertex() {
-	vec3 normal = MODEL_NORMAL_MATRIX * NORMAL;
-
-	TANGENT = vec3(0.0, 0.0, -1.0) * abs(normal.x);
-	TANGENT += vec3(1.0, 0.0, 0.0) * abs(normal.y);
-	TANGENT += vec3(1.0, 0.0, 0.0) * abs(normal.z);
-	TANGENT = inverse(MODEL_NORMAL_MATRIX) * normalize(TANGENT);
-
-	BINORMAL = vec3(0.0, 1.0, 0.0) * abs(normal.x);
-	BINORMAL += vec3(0.0, 0.0, -1.0) * abs(normal.y);
-	BINORMAL += vec3(0.0, 1.0, 0.0) * abs(normal.z);
-	BINORMAL = inverse(MODEL_NORMAL_MATRIX) * normalize(BINORMAL);
-
-	// UV1 Triplanar: Enabled (with World Triplanar)
-	uv1_power_normal = pow(abs(normal), vec3(uv1_blend_sharpness));
-	uv1_triplanar_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz * uv1_scale + uv1_offset + TIME;
-	uv1_power_normal /= dot(uv1_power_normal, vec3(1.0));
-	uv1_triplanar_pos *= vec3(1.0, -1.0, 1.0);
-}
-
-vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_triplanar_pos) {
-	vec4 samp = vec4(0.0);
-	samp += texture(p_sampler, p_triplanar_pos.xy) * p_weights.z;
-	samp += texture(p_sampler, p_triplanar_pos.xz) * p_weights.y;
-	samp += texture(p_sampler, p_triplanar_pos.zy * vec2(-1.0, 1.0)) * p_weights.x;
-	return samp;
-}
-
-void fragment() {
-	vec4 albedo_tex = triplanar_texture(texture_albedo, uv1_power_normal, uv1_triplanar_pos);
-	ALBEDO = albedo.rgb * albedo_tex.rgb;
-
-	float metallic_tex = dot(triplanar_texture(texture_metallic, uv1_power_normal, uv1_triplanar_pos), metallic_texture_channel);
-	METALLIC = metallic_tex * metallic;
-	SPECULAR = specular;
-
-	vec4 roughness_texture_channel = vec4(1.0, 0.0, 0.0, 0.0);
-	float roughness_tex = dot(triplanar_texture(texture_roughness, uv1_power_normal, uv1_triplanar_pos), roughness_texture_channel);
-	ROUGHNESS = roughness_tex * roughness;
-
-	// Normal Map: Enabled
-	NORMAL_MAP = triplanar_texture(texture_normal, uv1_power_normal, uv1_triplanar_pos).rgb;
-	NORMAL_MAP_DEPTH = normal_scale;
-
-	// Refraction: Enabled (with normal map texture)
-	vec3 unpacked_normal = NORMAL_MAP;
-	unpacked_normal.xy = unpacked_normal.xy * 2.0 - 1.0;
-	unpacked_normal.z = sqrt(max(0.0, 1.0 - dot(unpacked_normal.xy, unpacked_normal.xy)));
-	vec3 ref_normal = normalize(mix(
-			NORMAL,
-			TANGENT * unpacked_normal.x + BINORMAL * unpacked_normal.y + NORMAL * unpacked_normal.z,
-			NORMAL_MAP_DEPTH));
-	vec2 ref_ofs = SCREEN_UV - ref_normal.xy * dot(triplanar_texture(texture_refraction, uv1_power_normal, uv1_triplanar_pos), refraction_texture_channel) * refraction;
-
-	float ref_amount = 1.0 - albedo.a * albedo_tex.a;
-
-	float refraction_depth_tex = textureLod(depth_texture, ref_ofs, 0.0).r;
-	vec4 refraction_view_pos = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, refraction_depth_tex, 1.0);
-	refraction_view_pos.xyz /= refraction_view_pos.w;
-
-	// If the depth buffer is lower then the model's Z position, use the refracted UV, otherwise use the normal screen UV.
-	// At low depth differences, decrease refraction intensity to avoid sudden discontinuities.
-	EMISSION += textureLod(screen_texture, mix(SCREEN_UV, ref_ofs, smoothstep(0.0, 1.0, VERTEX.z - refraction_view_pos.z)), ROUGHNESS * 8.0).rgb * ref_amount * EXPOSURE;
-	ALBEDO *= 1.0 - ref_amount;
-	// Force transparency on the material (required for refraction).
-	ALPHA = 1.0;
+    float sway = sin(TIME * sway_speed + VERTEX.y * 0.8) * sway_strength;
+    VERTEX.x += sway;
 }
 "
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_b6feo"]
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_c2rmw"]
-noise = SubResource("FastNoiseLite_b6feo")
-seamless = true
-as_normal_map = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fxoen"]
 render_priority = 0
 shader = SubResource("Shader_1bicq")
-shader_parameter/albedo = Color(0.38039216, 0.6745098, 1, 0.5803922)
-shader_parameter/albedo_texture_size = Vector2i(0, 0)
-shader_parameter/point_size = 1.0
-shader_parameter/roughness = 0.0
-shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
-shader_parameter/specular = 0.5
-shader_parameter/metallic = 0.0
-shader_parameter/texture_refraction = SubResource("NoiseTexture2D_c2rmw")
-shader_parameter/refraction = 0.05
-shader_parameter/refraction_texture_channel = Vector4(1, 0, 0, 0)
-shader_parameter/texture_normal = SubResource("NoiseTexture2D_c2rmw")
-shader_parameter/normal_scale = 1.0
-shader_parameter/uv1_blend_sharpness = 1.0
-shader_parameter/uv1_scale = Vector3(1, 1, 1)
-shader_parameter/uv1_offset = Vector3(0, 0, 0)
-shader_parameter/uv2_scale = Vector3(1, 1, 1)
-shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/sway_strength = 0.25
+shader_parameter/sway_speed = 1.8
 
 [sub_resource type="BoxMesh" id="BoxMesh_2yaq2"]
 material = SubResource("ShaderMaterial_fxoen")
@@ -356,6 +240,7 @@ shape = SubResource("SphereShape3D_lw67b")
 [node name="Camera3D" type="Camera3D" parent="."]
 
 [node name="OceanEnvironment" parent="." instance=ExtResource("2_jw4fh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 54.00766, 0)
 visible = false
 
 [node name="ScoreManager" type="Node" parent="."]
@@ -381,6 +266,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.968981, 25.13553)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D2"]
 
 [node name="OceanEnvironment2" parent="." instance=ExtResource("2_jw4fh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -6.7803574, 0)
 
 [node name="CPUParticles3D" type="CPUParticles3D" parent="OceanEnvironment2"]
 lifetime = 5.0
@@ -419,6 +305,8 @@ shape = SubResource("ConcavePolygonShape3D_lw67b")
 
 [node name="TrashSpawner" parent="." instance=ExtResource("12_2dcvf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.15217, 101.05877, 7.472824)
+spawn_count = 10
+spawn_interval = 10.0
 
 [connection signal="body_entered" from="CharacterBody3D/CollectZone" to="CharacterBody3D" method="_on_collect_zone_body_entered"]
 [connection signal="body_entered" from="WaterDetector" to="CharacterBody3D" method="_on_water_detector_body_entered"]
