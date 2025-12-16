@@ -1,5 +1,5 @@
 # scripts/game/reef_cleanup_main.gd
-extends Node3D
+extends Node
 
 @onready var xr_origin: Node3D = $XROrigin3D
 @onready var xr_camera: XRCamera3D = $XROrigin3D/XRCamera3D
