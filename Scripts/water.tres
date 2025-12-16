@@ -37,6 +37,10 @@ uniform vec3 uv1_offset;
 uniform vec3 uv2_scale;
 uniform vec3 uv2_offset;
 
+
+uniform sampler2D cloud_texture;
+uniform sampler2D cloud_texture2;
+
 void vertex() {
 	vec3 normal = MODEL_NORMAL_MATRIX * NORMAL;
 
