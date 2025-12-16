@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://6oh51rcnamjs"]
+[gd_scene load_steps=24 format=3 uid="uid://6oh51rcnamjs"]
 
 [ext_resource type="Script" uid="uid://cwy4vcq2jk0sj" path="res://reef_cleanup_main.gd" id="1_0atsu"]
 [ext_resource type="PackedScene" uid="uid://b6su4egff1bcg" path="res://OceanEnvironment.tscn" id="2_jw4fh"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://q0fdris065ap" path="res://Scripts/pollution_manager.gd" id="3_7vkrx"]
 [ext_resource type="PackedScene" uid="uid://b77d384mf8au1" path="res://trash_item.tscn" id="5_b6feo"]
 [ext_resource type="PackedScene" uid="uid://cuq7spha0u86n" path="res://sand.tscn" id="6_b6feo"]
+[ext_resource type="BoxMesh" uid="uid://b1hnn3q687w8u" path="res://Scripts/water.tres" id="6_lsgsi"]
 [ext_resource type="Script" uid="uid://cmes1dvw6lh5h" path="res://addons/zylann.hterrain/hterrain.gd" id="7_lw67b"]
 [ext_resource type="Resource" uid="uid://bmgibxnqmakqy" path="res://terrain_data/data.hterrain" id="8_2dcvf"]
 [ext_resource type="Script" uid="uid://d4gku803imswe" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="9_lsgsi"]
@@ -155,28 +156,6 @@ points = PackedVector3Array(-0.12520654, -0.532801, -0.4805069, 0.022783129, 0.4
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_lw67b"]
 
-[sub_resource type="Shader" id="Shader_1bicq"]
-code = "shader_type spatial;
-
-uniform float sway_strength : hint_range(0.0, 1.0) = 0.25;
-uniform float sway_speed : hint_range(0.1, 5.0) = 1.8;
-
-void vertex() {
-    float sway = sin(TIME * sway_speed + VERTEX.y * 0.8) * sway_strength;
-    VERTEX.x += sway;
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_fxoen"]
-render_priority = 0
-shader = SubResource("Shader_1bicq")
-shader_parameter/sway_strength = 0.25
-shader_parameter/sway_speed = 1.8
-
-[sub_resource type="BoxMesh" id="BoxMesh_2yaq2"]
-material = SubResource("ShaderMaterial_fxoen")
-size = Vector3(200, 0, 300)
-
 [sub_resource type="Resource" id="Resource_jfgif"]
 script = ExtResource("9_lsgsi")
 mode = 0
@@ -196,6 +175,7 @@ transform = Transform3D(0.8660254, -0.43301272, 0.24999999, 0, 0.49999997, 0.866
 light_color = Color(0.5294118, 0.78431374, 1, 1)
 light_energy = 0.6
 light_volumetric_fog_energy = 0.8
+shadow_enabled = true
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_116wy")
@@ -254,7 +234,7 @@ trash_scene = ExtResource("5_b6feo")
 
 [node name="Water" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.120121, 92.54762, 18.156174)
-mesh = SubResource("BoxMesh_2yaq2")
+mesh = ExtResource("6_lsgsi")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Water"]
 
